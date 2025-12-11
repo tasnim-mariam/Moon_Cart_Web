@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Customers Management - MoonCart Admin</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <link rel="stylesheet" href="css/main.css" />
+        <link rel="stylesheet" href="css/responsive.css" />
+        <style>
+            :root {
+                --primary-color: #e31e24;
+                --secondary-color: #ff6b35;
+            }
+            body {
+                background: #f5f6fa;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Admin Container */
+            .admin-container {
+                max-width: 1600px;
+                margin: 0 auto;
+                padding: 200px 20px 40px;
+            }
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+            .page-header h1 {
+                font-size: 32px;
+                font-weight: 700;
+                color: #333;
+                margin: 0;
+            }
+
+            .page-header h1 {
+                font-size: 32px;
+                font-weight: 700;
+                color: #333;
+                margin: 0;
+            }
+            .search-box {
+                position: relative;
+                max-width: 400px;
+            }
+            .search-box input {
+                width: 100%;
+                padding: 12px 45px 12px 20px;
+                border: 2px solid #e0e0e0;
+                border-radius: 25px;
+                font-size: 15px;
+                transition: all 0.3s ease;
+            }
+            .search-box input:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+            .search-box i {
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #999;
+            }
+            .customers-table-container {
+                background: white;
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                overflow-x: auto;
+            }
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .data-table thead {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary-color) 0%,
+                    var(--secondary-color) 100%
+                );
+            }
+            .data-table th {
+                color: white;
+                padding: 18px 15px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 15px;
+                white-space: nowrap;
+            }
+            .data-table th:first-child {
+                border-radius: 12px 0 0 0;
+            }
+            .data-table th:last-child {
+                border-radius: 0 12px 0 0;
+            }
+            .data-table td {
+                padding: 18px 15px;
+                border-bottom: 1px solid #f0f0f0;
+                color: #333;
+            }
+            .data-table tbody tr {
+                transition: all 0.2s ease;
+            }
+            .data-table tbody tr:hover {
+                background: #f8f9fa;
+                transform: scale(1.01);
+            }
+            .customer-cell {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .customer-avatar {
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 700;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+            .customer-info h4 {
+                margin: 0;
+                font-size: 15px;
+                font-weight: 600;
+                color: #333;
+            }
+            .customer-info p {
+                margin: 3px 0 0 0;
+                font-size: 13px;
+                color: #666;
+            }
+            .btn-action {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                margin-right: 8px;
+                white-space: nowrap;
+            }
+            .btn-view-profile {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary-color) 0%,
+                    var(--secondary-color) 100%
+                );
+                color: white;
+            }
+            .btn-view-profile:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(227, 30, 36, 0.4);
+            }
+            .btn-view-orders {
+                background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+                color: white;
+            }
+            .btn-view-orders:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(48, 207, 208, 0.4);
+            }
+
+            /* Modal Styles */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 9999;
+                align-items: center;
+                justify-content: center;
+            }
+            .modal.active {
+                display: flex !important;
+            }
+            .modal-content {
+                background: white;
+                border-radius: 20px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                animation: slideDown 0.3s ease;
+            }
+            .modal-content.large {
+                max-width: 900px;
+            }
+            @keyframes slideDown {
+                from {
+                    transform: translateY(-50px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            .modal-header {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary-color) 0%,
+                    var(--secondary-color) 100%
+                );
+                padding: 25px 30px;
+                border-radius: 20px 20px 0 0;
+                position: relative;
+            }
+            .modal-header h2 {
+                margin: 0;
+                color: white;
+                font-size: 24px;
+                font-weight: 700;
+            }
+            .modal-close {
+                position: absolute;
+                right: 25px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 28px;
+                cursor: pointer;
+                color: white;
+                opacity: 0.9;
+                transition: opacity 0.2s;
+            }
+            .modal-close:hover {
+                opacity: 1;
+            }
+            .modal-body {
+                padding: 30px;
+            }
+            .profile-grid {
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 25px;
+                align-items: start;
+                margin-bottom: 30px;
+            }
+            .profile-avatar-large {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 40px;
+                font-weight: 700;
+                box-shadow: 0 5px 20px rgba(48, 207, 208, 0.3);
+            }
+            .profile-info h3 {
+                margin: 0 0 8px 0;
+                font-size: 26px;
+                color: #333;
+            }
+            .profile-info p {
+                margin: 5px 0;
+                color: #666;
+                font-size: 15px;
+            }
+            .profile-info p i {
+                color: #30cfd0;
+                margin-right: 8px;
+                width: 20px;
+            }
+            .stats-row {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                margin-top: 25px;
+            }
+            .stat-box {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                padding: 20px;
+                border-radius: 12px;
+                text-align: center;
+                color: white;
+            }
+            .stat-box h4 {
+                margin: 0 0 5px 0;
+                font-size: 28px;
+                font-weight: 700;
+            }
+            .stat-box p {
+                margin: 0;
+                font-size: 13px;
+                opacity: 0.9;
+            }
+            .stat-box:nth-child(1) {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary-color) 0%,
+                    var(--secondary-color) 100%
+                );
+            }
+            .stat-box:nth-child(2) {
+                background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            }
+
+            /* Orders Modal */
+            .order-item {
+                border: 2px solid #f0f0f0;
+                border-radius: 12px;
+                margin-bottom: 15px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            .order-item:hover {
+                border-color: var(--primary-color);
+                box-shadow: 0 3px 10px rgba(227, 30, 36, 0.2);
+            }
+            .order-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 18px 20px;
+                background: #f8f9fa;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .order-header:hover {
+                background: #e9ecef;
+            }
+            .order-header-left h4 {
+                margin: 0 0 5px 0;
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--primary-color);
+            }
+            .order-header-left p {
+                margin: 0;
+                font-size: 13px;
+                color: #666;
+            }
+            .order-header-right {
+                text-align: right;
+            }
+            .order-total {
+                font-size: 20px;
+                font-weight: 700;
+                color: #30cfd0;
+                margin-bottom: 5px;
+            }
+            .status-badge {
+                padding: 6px 14px;
+                border-radius: 15px;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: capitalize;
+            }
+            .status-pending {
+                background: #fff3cd;
+                color: #856404;
+            }
+            .status-confirmed {
+                background: #d1ecf1;
+                color: #0c5460;
+            }
+            .status-shipped,
+            .status-delivered {
+                background: #d4edda;
+                color: #155724;
+            }
+            .status-cancelled {
+                background: #f8d7da;
+                color: #721c24;
+            }
+            .order-details {
+                display: none;
+                padding: 20px;
+                background: white;
+                border-top: 2px solid #f0f0f0;
+            }
+            .order-details.expanded {
+                display: block;
+                animation: slideDown 0.3s ease;
+            }
+            .order-info-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+            .info-group h5 {
+                margin: 0 0 10px 0;
+                color: var(--primary-color);
+                font-size: 14px;
+                font-weight: 600;
+            }
+            .info-group p {
+                margin: 5px 0;
+                font-size: 14px;
+                color: #666;
+            }
+            .order-items-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }
+            .order-items-table th {
+                background: #f8f9fa;
+                padding: 12px;
+                text-align: left;
+                font-size: 13px;
+                font-weight: 600;
+                color: #333;
+                border-bottom: 2px solid #e0e0e0;
+            }
+            .order-items-table td {
+                padding: 12px;
+                border-bottom: 1px solid #f0f0f0;
+                font-size: 14px;
+                color: #666;
+            }
+            .order-summary {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 10px;
+                margin-top: 20px;
+            }
+            .summary-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+                font-size: 15px;
+            }
+            .summary-row.total {
+                font-size: 18px;
+                font-weight: 700;
+                color: var(--primary-color);
+                padding-top: 10px;
+                border-top: 2px solid #ddd;
+                margin-top: 10px;
+            }
+            .no-orders {
+                text-align: center;
+                padding: 60px 20px;
+                color: #999;
+            }
+            .no-orders i {
+                font-size: 60px;
+                margin-bottom: 15px;
+                display: block;
+                opacity: 0.5;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="container">
+                <div class="top-bar-content">
+                    <div class="top-bar-left">
+                        <span
+                            ><i class="fas fa-phone-alt"></i> +1 234 567
+                            8900</span
+                        >
+                        <span
+                            ><i class="fas fa-envelope"></i>
+                            info@mooncart.com</span
+                        >
+                    </div>
+                    <div class="top-bar-right">
+                        <span class="delivery-badge">
+                            <i class="fas fa-shield-alt"></i> Admin Panel
+                        </span>
+                        <div class="social-icons">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <nav class="navbar">
+                    <a href="index.html" class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <div class="logo-text">
+                            <span class="logo-main"
+                                >Moon<span class="logo-accent">Cart</span></span
+                            >
+                            <span class="logo-tagline">Fresh & Fast</span>
+                        </div>
+                    </a>
+
+                    <ul class="nav-menu">
+                        <li>
+                            <a href="admin-dashboard.html" class="nav-link">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="admin-products.html" class="nav-link">
+                                <i class="fas fa-box"></i>
+                                <span>Products</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="admin-orders.html" class="nav-link">
+                                <i class="fas fa-shopping-bag"></i>
+                                <span>Orders</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="admin-customers.html"
+                                class="nav-link active"
+                            >
+                                <i class="fas fa-users"></i>
+                                <span>Customers</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="nav-actions">
+                        <!-- Account Section (Dynamic) -->
+                        <div id="account-section" class="account-section">
+                            <div class="auth-buttons">
+                                <a href="login.html" class="btn-login">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    <span>Login</span>
+                                </a>
+                                <a href="signup.html" class="btn-signup">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>Sign Up</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="menu-toggle">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <div class="admin-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1><i class="fas fa-users"></i> Customers Management</h1>
+                <div class="search-box">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Search customers..."
+                        onkeyup="searchCustomers()"
+                    />
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <!-- Customers Table -->
+            <div class="customers-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Email</th>
+                            <th>Total Spent</th>
+                            <th>Total Orders</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Profile Modal -->
+        <div id="profile-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-user-circle"></i> Customer Profile</h2>
+                    <span class="modal-close" onclick="closeProfileModal()"
+                        >&times;</span
+                    >
+                </div>
+                <div class="modal-body" id="profile-modal-body"></div>
+            </div>
+        </div>
+
+        <!-- Orders Modal -->
+        <div id="orders-modal" class="modal">
+            <div class="modal-content large">
+                <div
+                    class="modal-header"
+                    style="
+                        background: linear-gradient(
+                            135deg,
+                            #30cfd0 0%,
+                            #330867 100%
+                        );
+                    "
+                >
+                    <h2><i class="fas fa-shopping-bag"></i> Customer Orders</h2>
+                    <span class="modal-close" onclick="closeOrdersModal()"
+                        >&times;</span
+                    >
+                </div>
+                <div class="modal-body" id="orders-modal-body"></div>
+            </div>
+        </div>
+
+        <script src="js/main.js"></script>
+        <script src="js/api.js"></script>
+        <script>
+            // Check admin access
+            const currentUser = MoonCart.getCurrentUser();
+            if (!currentUser || currentUser.role !== "admin") {
+                MoonCart.showNotification("Admin access required", "error");
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 1500);
+            }
+
+            let allCustomers = [];
+            let allOrders = [];
+            let currentCustomerId = null;
+
+            // Load data
+            document.addEventListener("DOMContentLoaded", loadCustomers);
+
+            async function loadCustomers() {
+                MoonCart.showLoading();
+                try {
+                    // Load customers
+                    const usersResponse = await MoonCartAPI.getAllUsers(
+                        "customer"
+                    );
+                    if (usersResponse.success && usersResponse.users) {
+                        allCustomers = usersResponse.users;
+                    }
+
+                    // Load all orders
+                    const ordersResponse = await MoonCartAPI.getAllOrders();
+                    if (ordersResponse.success && ordersResponse.orders) {
+                        allOrders = ordersResponse.orders;
+                    }
+
+                    renderCustomers(allCustomers);
+                    MoonCart.hideLoading();
+                } catch (error) {
+                    MoonCart.hideLoading();
+                    console.error("Error loading customers:", error);
+                    MoonCart.showNotification(
+                        "Failed to load customers",
+                        "error"
+                    );
+                }
+            }
+
+            function getCustomerStats(customerId) {
+                const customerOrders = allOrders.filter(
+                    (o) => o.user_id == customerId
+                );
+                const totalSpent = customerOrders.reduce(
+                    (sum, o) => sum + parseFloat(o.total || 0),
+                    0
+                );
+                return { orderCount: customerOrders.length, totalSpent };
+            }
+
+            function renderCustomers(customers) {
+                const tbody = document.getElementById("customers-tbody");
+
+                if (customers.length === 0) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 60px; color: #999;">
+                            <i class="fas fa-users" style="font-size: 48px; display: block; margin-bottom: 15px;"></i>
+                            No customers found
+                        </td>
+                    </tr>
+                `;
+                    return;
+                }
+
+                tbody.innerHTML = customers
+                    .map((customer) => {
+                        const stats = getCustomerStats(customer.id);
+                        const initials = customer.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase();
+
+                        return `
+                    <tr>
+                        <td>
+                            <div class="customer-cell">
+                                <div class="customer-avatar">${initials}</div>
+                                <div class="customer-info">
+                                    <h4>${customer.name}</h4>
+                                    <p><i class="fas fa-phone"></i> ${
+                                        customer.phone || "N/A"
+                                    }</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${customer.email}</td>
+                        <td style="font-weight: 600; color: #30cfd0; font-size: 16px;">৳${MoonCart.formatCurrency(
+                            stats.totalSpent
+                        )}</td>
+                        <td style="text-align: center; font-weight: 600; font-size: 16px;">${
+                            stats.orderCount
+                        }</td>
+                        <td>
+                            <button class="btn-action btn-view-profile" onclick="viewProfile('${
+                                customer.id
+                            }')">
+                                <i class="fas fa-user"></i> View Profile
+                            </button>
+                            <button class="btn-action btn-view-orders" onclick="viewOrders('${
+                                customer.id
+                            }')">
+                                <i class="fas fa-shopping-bag"></i> View Orders
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                    })
+                    .join("");
+            }
+
+            function searchCustomers() {
+                const searchTerm = document
+                    .getElementById("search-input")
+                    .value.toLowerCase();
+                const filtered = allCustomers.filter(
+                    (customer) =>
+                        customer.name.toLowerCase().includes(searchTerm) ||
+                        customer.email.toLowerCase().includes(searchTerm) ||
+                        (customer.phone && customer.phone.includes(searchTerm))
+                );
+                renderCustomers(filtered);
+            }
+
+            function viewProfile(customerId) {
+                const customer = allCustomers.find((c) => c.id == customerId);
+                if (!customer) return;
+
+                const stats = getCustomerStats(customerId);
+                const initials = customer.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase();
+                const memberSince = new Date(
+                    customer.created_at
+                ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                });
+
+                document.getElementById("profile-modal-body").innerHTML = `
+                <div class="profile-grid">
+                    <div class="profile-avatar-large">${initials}</div>
+                    <div class="profile-info">
+                        <h3>${customer.name}</h3>
+                        <p><i class="fas fa-envelope"></i> ${customer.email}</p>
+                        <p><i class="fas fa-phone"></i> ${
+                            customer.phone || "N/A"
+                        }</p>
+                        <p><i class="fas fa-calendar"></i> Member since ${memberSince}</p>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <h4>${stats.orderCount}</h4>
+                        <p>Total Orders</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>৳${MoonCart.formatCurrency(stats.totalSpent)}</h4>
+                        <p>Total Spent</p>
+                    </div>
+                </div>
+            `;
+
+                document
+                    .getElementById("profile-modal")
+                    .classList.add("active");
+            }
+
+            function closeProfileModal() {
+                document
+                    .getElementById("profile-modal")
+                    .classList.remove("active");
+            }
+
+            function viewOrders(customerId) {
+                currentCustomerId = customerId;
+                const customer = allCustomers.find((c) => c.id == customerId);
+                if (!customer) return;
+
+                const customerOrders = allOrders.filter(
+                    (o) => o.user_id == customerId
+                );
+
+                if (customerOrders.length === 0) {
+                    document.getElementById("orders-modal-body").innerHTML = `
+                    <div class="no-orders">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>No orders yet</h3>
+                        <p>${customer.name} hasn't placed any orders.</p>
+                    </div>
+                `;
+                } else {
+                    document.getElementById("orders-modal-body").innerHTML =
+                        customerOrders
+                            .map(
+                                (order) => `
+                    <div class="order-item">
+                        <div class="order-header" onclick="toggleOrderDetails('${
+                            order.id
+                        }')">
+                            <div class="order-header-left">
+                                <h4>#${String(order.order_number || order.id)
+                                    .substring(0, 12)
+                                    .toUpperCase()}</h4>
+                                <p><i class="fas fa-calendar"></i> ${new Date(
+                                    order.created_at
+                                ).toLocaleDateString()} | ${
+                                    order.item_count || order.items?.length || 0
+                                } items</p>
+                            </div>
+                            <div class="order-header-right">
+                                <div class="order-total">৳${MoonCart.formatCurrency(
+                                    parseFloat(order.total)
+                                )}</div>
+                                <span class="status-badge status-${
+                                    order.status
+                                }">${order.status}</span>
+                            </div>
+                        </div>
+                        <div class="order-details" id="order-details-${
+                            order.id
+                        }">
+                            <div class="order-info-grid">
+                                <div class="info-group">
+                                    <h5><i class="fas fa-user"></i> CUSTOMER INFO</h5>
+                                    <p><strong>Name:</strong> ${
+                                        order.customer_name
+                                    }</p>
+                                    <p><strong>Email:</strong> ${
+                                        order.email
+                                    }</p>
+                                    <p><strong>Phone:</strong> ${
+                                        order.phone
+                                    }</p>
+                                </div>
+                                <div class="info-group">
+                                    <h5><i class="fas fa-map-marker-alt"></i> DELIVERY INFO</h5>
+                                    <p><strong>Address:</strong> ${
+                                        order.address
+                                    }</p>
+                                    <p><strong>City:</strong> ${order.city}</p>
+                                    <p><strong>Payment:</strong> ${
+                                        order.payment_method || "N/A"
+                                    }</p>
+                                </div>
+                            </div>
+                            <h5 style="margin: 20px 0 10px 0; color: #667eea;"><i class="fas fa-box"></i> ORDER ITEMS</h5>
+                            <table class="order-items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${(order.items || [])
+                                        .map(
+                                            (item) => `
+                                        <tr>
+                                            <td>${item.product_name}</td>
+                                            <td>${item.quantity}</td>
+                                            <td>৳${MoonCart.formatCurrency(
+                                                parseFloat(item.price)
+                                            )}</td>
+                                            <td>৳${MoonCart.formatCurrency(
+                                                parseFloat(item.total)
+                                            )}</td>
+                                        </tr>
+                                    `
+                                        )
+                                        .join("")}
+                                </tbody>
+                            </table>
+                            <div class="order-summary">
+                                <div class="summary-row">
+                                    <span>Subtotal:</span>
+                                    <span>৳${MoonCart.formatCurrency(
+                                        parseFloat(order.subtotal)
+                                    )}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Tax:</span>
+                                    <span>৳${MoonCart.formatCurrency(
+                                        parseFloat(order.tax)
+                                    )}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Shipping:</span>
+                                    <span>${
+                                        order.shipping == 0
+                                            ? '<span style="color: #28a745;">FREE</span>'
+                                            : "৳" +
+                                              MoonCart.formatCurrency(
+                                                  parseFloat(order.shipping)
+                                              )
+                                    }</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total:</span>
+                                    <span>৳${MoonCart.formatCurrency(
+                                        parseFloat(order.total)
+                                    )}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+                            )
+                            .join("");
+                }
+
+                document.getElementById("orders-modal").classList.add("active");
+            }
+
+            function toggleOrderDetails(orderId) {
+                const detailsDiv = document.getElementById(
+                    `order-details-${orderId}`
+                );
+                detailsDiv.classList.toggle("expanded");
+            }
+
+            function closeOrdersModal() {
+                document
+                    .getElementById("orders-modal")
+                    .classList.remove("active");
+            }
+
+            function logout() {
+                localStorage.removeItem("mooncart_user");
+                window.location.href = "login.html";
+            }
+
+            // Close modals on outside click
+            window.onclick = function (event) {
+                if (event.target.classList.contains("modal")) {
+                    event.target.classList.remove("active");
+                }
+            };
+        </script>
+    </body>
+</html>
